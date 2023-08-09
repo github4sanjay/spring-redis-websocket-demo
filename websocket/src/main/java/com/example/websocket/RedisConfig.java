@@ -32,20 +32,23 @@ public class RedisConfig {
 
   @Bean
   ApplicationRunner subscriptionTopicRunner(
-      ReactiveStringRedisTemplate reactiveStringRedisTemplate) {
+          ReactiveStringRedisTemplate reactiveStringRedisTemplate,
+          ObjectStringConverter objectStringConverter,
+          MessagingService messagingService) {
     return args -> {
-      reactiveStringRedisTemplate
-          .listenTo(new PatternTopic(WebSocketTopic.SUBSCRIPTION.getTopic()))
-          .map(ReactiveSubscription.Message::getMessage)
-          .doOnNext(message -> log.info("Message received {}", message))
-          .then()
-          .doOnSubscribe(
-              subscription ->
-                  log.info(
-                      "Redis Listener Started for topic " + WebSocketTopic.SUBSCRIPTION.getTopic()))
-          .doOnError(throwable -> log.error("Error listening to Redis topic.", throwable))
-          .doFinally(signalType -> log.info("Stopped Listener. Signal Type: {}", signalType))
-          .subscribe();
+      new OutboundMessageListener(
+              reactiveStringRedisTemplate,
+              objectStringConverter,
+              messagingService,
+              WebSocketTopic.SUBSCRIPTION.getTopic())
+              .subscribeMessageChannelAndPublishOnWebSocket()
+              .doOnSubscribe(
+                      subscription ->
+                              log.info(
+                                      "Redis Listener Started for topic " + WebSocketTopic.SUBSCRIPTION.getTopic()))
+              .doOnError(throwable -> log.error("Error listening to Redis topic.", throwable))
+              .doFinally(signalType -> log.info("Stopped Listener. Signal Type: {}", signalType))
+              .subscribe();
     };
   }
 }
