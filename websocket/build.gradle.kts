@@ -10,10 +10,6 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 val artifactoryURL: String by project
 
 repositories {
-    maven {
-        url = uri(artifactoryURL)
-    }
-    mavenLocal()
     mavenCentral()
 }
 
