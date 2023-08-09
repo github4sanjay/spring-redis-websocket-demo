@@ -1,0 +1,6 @@
+server.port: 8081
+spring:
+  application.name: sample-service
+  data.redis:
+    host: localhost
+    port: 6379
