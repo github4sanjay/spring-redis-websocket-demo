@@ -10,6 +10,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.server.WebSocketService;
+import org.springframework.web.reactive.socket.server.support.HandshakeWebSocketService;
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
 
 @Slf4j
@@ -34,7 +36,13 @@ public class ReactiveWebSocketConfig {
   }
 
   @Bean
-  public WebSocketHandlerAdapter handlerAdapter() {
-    return new WebSocketHandlerAdapter();
+  public WebSocketHandlerAdapter handlerAdapter(WebSocketService webSocketService) {
+    return new WebSocketHandlerAdapter(webSocketService);
+  }
+
+  @Bean
+  public WebSocketService getWebSocketService(WebSocketTokenService webSocketTokenService) {
+    return new HandshakeWebSocketService(
+        new PrincipalRequestUpgradeStrategy(webSocketTokenService));
   }
 }
