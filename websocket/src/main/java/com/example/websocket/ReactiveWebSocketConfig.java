@@ -19,8 +19,8 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 public class ReactiveWebSocketConfig {
 
   @Bean
-  public SubscriptionHandler webSocketHandler() {
-    return new SubscriptionHandler();
+  public SubscriptionHandler webSocketHandler(MessagingService messagingService) {
+    return new SubscriptionHandler(messagingService);
   }
 
   @Bean
