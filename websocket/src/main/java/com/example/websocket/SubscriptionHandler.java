@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 public class SubscriptionHandler implements WebSocketHandler {
 
   private final MessagingService messagingService;
+  private final InboundMessageListener inboundMessageListener;
 
   @Nonnull
   @Override
@@ -33,8 +34,10 @@ public class SubscriptionHandler implements WebSocketHandler {
               var inputMessage =
                   webSocketSession
                       .receive()
-                      .doOnNext(
-                          webSocketMessage -> log.info("Message received {}", webSocketMessage))
+                      .flatMap(
+                          webSocketMessage ->
+                              inboundMessageListener.handle(
+                                  principal.getName(), webSocketMessage.getPayloadAsText()))
                       .doOnSubscribe(
                           subscription -> {
                             log.info("User '{}' connected.", principal.getName());
