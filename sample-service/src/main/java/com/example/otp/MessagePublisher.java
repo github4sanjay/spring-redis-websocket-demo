@@ -13,12 +13,21 @@ import org.springframework.stereotype.Component;
 public class MessagePublisher {
 
   private final ReactiveStringRedisTemplate reactiveStringRedisTemplate;
+  private final ObjectStringConverter objectStringConverter;
 
   @Scheduled(fixedDelay = 5000)
   public void scheduleFixedDelayTask() {
     log.info("publishing message");
+    var message =
+        WebSocketMessage.<String>builder()
+            .id(UUID.randomUUID().toString())
+            .userId("00d79e72-de48-411b-94db-b0e824e11d9d")
+            .data(WebSocketMessage.Data.<String>builder().data("Sanjay").type("SOME_TYPE").build())
+            .build();
     reactiveStringRedisTemplate
-        .convertAndSend(WebSocketTopic.SUBSCRIPTION.getTopic(), "Message " + UUID.randomUUID())
+        .convertAndSend(
+            WebSocketTopic.SUBSCRIPTION.getTopic(),
+            objectStringConverter.objectToStringNonReactive(message))
         .block();
   }
 }

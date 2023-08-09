@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.ReactiveSubscription;
 import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -19,10 +18,10 @@ public class OutboundMessageListener {
 
   public Mono<Void> subscribeMessageChannelAndPublishOnWebSocket() {
     return reactiveStringRedisTemplate
-            .listenTo(new PatternTopic(patternTopic))
-            .map(ReactiveSubscription.Message::getMessage)
-            .flatMap(message -> objectStringConverter.stringToObject(message, WebSocketMessage.class))
-            .flatMap(messagingService::onNext)
-            .then();
+        .listenTo(new PatternTopic(patternTopic))
+        .map(ReactiveSubscription.Message::getMessage)
+        .flatMap(message -> objectStringConverter.stringToObject(message, WebSocketMessage.class))
+        .flatMap(messagingService::onNext)
+        .then();
   }
 }
